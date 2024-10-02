@@ -47,9 +47,9 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
 export const nsbxScraper = makeSourcerer({
   id: 'nsbx',
   name: 'NSBX',
-  rank: 150,
+  rank: 160,
   flags: [flags.CORS_ALLOWED],
-  disabled: true,
+  disabled: false,
   scrapeMovie: comboScraper,
   scrapeShow: comboScraper,
 });
