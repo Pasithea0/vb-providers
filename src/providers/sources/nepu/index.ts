@@ -18,6 +18,13 @@ const universalScraper = async (ctx: MovieScrapeContext | ShowScrapeContext) => 
     query: {
       q: ctx.media.title,
     },
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36',
+
+      Referer: nepuBase,
+      'Accept-Language': 'en-US,en;q=0.9',
+    },
   });
 
   // json isn't parsed by proxiedFetcher due to content-type being text/html.
