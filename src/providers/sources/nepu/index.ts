@@ -75,7 +75,7 @@ const universalScraper = async (ctx: MovieScrapeContext | ShowScrapeContext) => 
   const fileUrlMatch = jsonString.match(/"file":"([^"]+)"/);
   if (!fileUrlMatch || !fileUrlMatch[1]) throw new NotFoundError('Failed to find file');
   console.log('fileUrlMatch:', fileUrlMatch[1]);
-  const proxiedPlaylist = `https://m3u8.wafflehacker.io/m3u8-proxy?url=${encodeURIComponent(fileUrlMatch[1])}&headers=${encodeURIComponent(headersString)}`;
+  const proxiedPlaylist = `https://m3u8.pstream.org/m3u8-proxy?url=${encodeURIComponent(fileUrlMatch[1])}&headers=${encodeURIComponent(headersString)}`;
   console.log('proxiedPlaylist:', proxiedPlaylist);
 
   return {
