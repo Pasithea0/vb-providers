@@ -9,7 +9,7 @@ import { NotFoundError } from '@/utils/errors';
 
 import { SearchResults } from './types';
 
-const nepuBase = 'https://rar.to';
+const nepuBase = 'https://ns31395360.ip-135-125-163.eu';
 const nepuReferer = 'https://nepu.to';
 
 const universalScraper = async (ctx: MovieScrapeContext | ShowScrapeContext) => {
