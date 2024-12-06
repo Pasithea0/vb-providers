@@ -61,7 +61,6 @@ import { autoembedScraper } from './sources/autoembed';
 import { catflixScraper } from './sources/catflix';
 import { ee3Scraper } from './sources/ee3';
 import { goojaraScraper } from './sources/goojara';
-import { hdRezkaScraper } from './sources/hdrezka';
 import { m4uScraper } from './sources/m4ufree';
 import { moviplusScraper } from './sources/moviplus';
 import { nepuScraper } from './sources/nepu';
@@ -92,7 +91,6 @@ export function gatherAllSources(): Array<Sourcerer> {
     nepuScraper,
     m4uScraper,
     goojaraScraper,
-    hdRezkaScraper,
     primewireScraper,
     warezcdnScraper,
     insertunitScraper,
