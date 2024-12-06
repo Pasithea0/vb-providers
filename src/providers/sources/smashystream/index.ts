@@ -30,8 +30,8 @@ const universalScraper = async (ctx: ShowScrapeContext | MovieScrapeContext): Pr
 export const smashyStreamScraper = makeSourcerer({
   id: 'smashystream',
   name: 'SmashyStream',
-  rank: 110,
-  disabled: false,
+  rank: 30,
+  disabled: true,
   flags: [flags.CORS_ALLOWED],
   scrapeMovie: universalScraper,
   scrapeShow: universalScraper,
