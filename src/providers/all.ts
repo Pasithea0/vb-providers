@@ -60,6 +60,7 @@ import { wootlyScraper } from './embeds/wootly';
 import { autoembedScraper } from './sources/autoembed';
 import { catflixScraper } from './sources/catflix';
 import { ee3Scraper } from './sources/ee3';
+import { fsharetvScraper } from './sources/fsharetv';
 import { goojaraScraper } from './sources/goojara';
 import { m4uScraper } from './sources/m4ufree';
 import { moviplusScraper } from './sources/moviplus';
@@ -107,6 +108,7 @@ export function gatherAllSources(): Array<Sourcerer> {
     twoEmbedScraper,
     netMirrorScraper,
     mirrorsScraper,
+    fsharetvScraper,
   ];
 }
 
