@@ -1,9 +1,11 @@
 import { load } from 'cheerio';
 
 import { flags } from '@/entrypoint/utils/targets';
-import { Caption, labelToLanguageCode, removeDuplicatedLanguages } from '@/providers/captions';
+import { Caption, labelToLanguageCode } from '@/providers/captions';
+import { Stream } from '@/providers/streams';
 import { MovieScrapeContext, ShowScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
+import { convertPlaylistsToDataUrls } from '@/utils/playlist';
 
 import { InfoResponse } from './types';
 import { SourcererOutput, makeSourcerer } from '../../base';
@@ -60,61 +62,50 @@ const universalScraper = async (ctx: MovieScrapeContext | ShowScrapeContext): Pr
   });
 
   const streamResJson: InfoResponse = JSON.parse(streamRes);
-  const playlistUrl = `${baseUrl}${streamResJson.val}`;
-  const backupPlaylistUrl = `${baseUrl}${streamResJson.val_bak}`;
-  const backupPlayRes = await ctx.proxiedFetcher(backupPlaylistUrl, { headers: { referer: `${baseUrl}${showLink}` } });
-  const playlistRes = await ctx.proxiedFetcher(playlistUrl, { headers: { referer: `${baseUrl}${showLink}` } });
-  const base64Encoded = btoa(unescape(encodeURIComponent(playlistRes)));
-  const backupBase64Encoded = btoa(unescape(encodeURIComponent(backupPlayRes)));
-  const finalPlaylistUrl = `data:application/vnd.apple.mpegurl;base64,${base64Encoded}`;
-  const finalBackupPlaylistUrl = `data:application/vnd.apple.mpegurl;base64,${backupBase64Encoded}`;
 
   const captions: Caption[] = [];
-  if (Array.isArray(streamResJson.subs)) {
-    // Check if streamResJson.subs is an array
-    for (const sub of streamResJson.subs) {
-      const proxyPrefix = `https://proxy.wafflehacker.io?destination=`;
-      const fullSubUrl = `${proxyPrefix}${encodeURIComponent(baseUrl + sub.path)}`;
-
-      let language: string | null = '';
-      if (sub.name.includes('.srt')) {
-        language = labelToLanguageCode(sub.name.split('.srt')[0]);
-      } else if (sub.name.includes(':')) {
-        language = sub.name.split(':')[0];
-      } else {
-        language = sub.name;
-      }
-      if (!language) continue;
-
-      captions.push({
-        id: fullSubUrl,
-        url: fullSubUrl,
-        type: 'srt',
-        hasCorsRestrictions: false,
-        language,
-      });
+  for (const sub of streamResJson.subs) {
+    // Some subtitles are named <Language>.srt, some are named <LanguageCode>:hi, or just <LanguageCode>
+    let language: string | null = '';
+    if (sub.name.includes('.srt')) {
+      language = labelToLanguageCode(sub.name.split('.srt')[0]);
+    } else if (sub.name.includes(':')) {
+      language = sub.name.split(':')[0];
+    } else {
+      language = sub.name;
     }
+    if (!language) continue;
+
+    captions.push({
+      id: sub.path,
+      url: sub.path,
+      type: 'srt',
+      hasCorsRestrictions: false,
+      language,
+    });
   }
-  const noDupes = removeDuplicatedLanguages(captions);
+
   return {
     embeds: [],
     stream: [
       {
         id: 'primary',
-        playlist: finalPlaylistUrl,
+        playlist: await convertPlaylistsToDataUrls(ctx.proxiedFetcher, `${baseUrl}/${streamResJson.val}`),
         type: 'hls',
+        proxyDepth: 2,
         flags: [flags.CORS_ALLOWED],
-        captions: noDupes,
+        captions,
       },
       ...(streamResJson.val_bak
         ? [
             {
               id: 'backup',
-              playlist: finalBackupPlaylistUrl,
-              type: 'hls' as const,
+              playlist: await convertPlaylistsToDataUrls(ctx.proxiedFetcher, `${baseUrl}/${streamResJson.val_bak}`),
+              type: 'hls',
               flags: [flags.CORS_ALLOWED],
-              captions: noDupes,
-            },
+              proxyDepth: 2,
+              captions,
+            } as Stream,
           ]
         : []),
     ],
@@ -124,7 +115,7 @@ const universalScraper = async (ctx: MovieScrapeContext | ShowScrapeContext): Pr
 export const soaperTvScraper = makeSourcerer({
   id: 'soapertv',
   name: 'SoaperTV',
-  rank: 126,
+  rank: 155,
   disabled: false,
   flags: [flags.CORS_ALLOWED],
   scrapeMovie: universalScraper,
